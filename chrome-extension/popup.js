@@ -18,7 +18,7 @@ summarizeBtn.addEventListener("click", async () => {
         const currentUrl = tab.url;
 
         const response = await fetch(
-            `http://127.0.0.1:8000/api/summarize?url=${encodeURIComponent(currentUrl)}`
+            `https://reddit-summarizer-zjaf.onrender.com/api/summarize?url=${encodeURIComponent(currentUrl)}`
         );
 
         const data = await response.json();

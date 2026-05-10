@@ -1,57 +1,52 @@
 import requests
 
-HEADERS = {
-    "User-Agent": "reddit-comment-summarizer"
-}
 
 def fetch_post_and_comments(url: str):
 
     if not url.endswith(".json"):
         url = url.rstrip("/") + ".json"
 
-    response = requests.get(url, headers=HEADERS)
+    headers = {
+        "User-Agent": "Mozilla/5.0 RedditSummarizerBot/1.0"
+    }
+
+    response = requests.get(
+        url,
+        headers=headers,
+        timeout=20
+    )
 
     if response.status_code != 200:
+
         raise Exception(
             f"Failed to fetch Reddit post: {response.status_code}"
         )
 
     data = response.json()
 
-    post = data[0]["data"]["children"][0]["data"]
-
-    comments_raw = data[1]["data"]["children"]
+    post_data = data[0]["data"]["children"][0]["data"]
 
     comments = []
 
-    for comment in comments_raw:
+    for comment in data[1]["data"]["children"]:
 
         if comment["kind"] != "t1":
             continue
 
         comment_data = comment["data"]
 
-        body = comment_data.get("body", "")
+        body = comment_data.get("body")
 
-        if body in ["[deleted]", "[removed]"]:
-            continue
-
-        if len(body.strip()) < 30:
+        if not body:
             continue
 
         comments.append({
-            "author": comment_data.get("author"),
             "body": body,
             "score": comment_data.get("score", 0)
         })
 
-    comments = sorted(
-        comments,
-        key=lambda x: x["score"],
-        reverse=True
-    )
     return {
-        "title": post.get("title"),
-        "post_text": post.get("selftext", ""),
-        "comments": comments[:100]
+        "title": post_data.get("title", ""),
+        "post_text": post_data.get("selftext", ""),
+        "comments": comments[:50]
     }
