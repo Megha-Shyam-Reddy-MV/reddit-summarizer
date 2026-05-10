@@ -71,7 +71,7 @@ def summarize(request: Request, url: str):
 
 @app.get("/api/summarize")
 @limiter.limit("5/minute")
-def summarize_api(url: str):
+def summarize_api(request: Request, url: str):
 
     reddit_data = fetch_post_and_comments(url)
 
