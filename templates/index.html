@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Reddit Summarizer</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Reddit Comment Summarizer</h1>
+
+    <form action="/summarize" method="get">
+
+        <input
+            type="text"
+            name="url"
+            placeholder="Paste Reddit post URL..."
+            required
+        >
+
+        <button type="submit">
+            Summarize
+        </button>
+
+    </form>
+
+    {% if summary %}
+
+    <div class="summary-card">
+
+        <h2>{{ title }}</h2>
+
+        <pre>{{ summary }}</pre>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+
+</html>
