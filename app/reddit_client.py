@@ -1,15 +1,17 @@
 import requests
+from urllib.parse import urlparse
+
+
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 RedditSummarizerBot/1.0"
+}
 
 
 def normalize_reddit_url(url: str):
 
-    headers = {
-        "User-Agent": "Mozilla/5.0 RedditSummarizerBot/1.0"
-    }
-
     response = requests.get(
         url,
-        headers=headers,
+        headers=HEADERS,
         allow_redirects=True,
         timeout=20
     )
@@ -17,36 +19,43 @@ def normalize_reddit_url(url: str):
     return response.url
 
 
-def fetch_post_and_comments(url: str):
-
-    headers = {
-        "User-Agent": "Mozilla/5.0 RedditSummarizerBot/1.0"
-    }
+def build_json_url(url: str):
 
     normalized_url = normalize_reddit_url(url)
 
-    if not normalized_url.endswith(".json"):
-        normalized_url = normalized_url.rstrip("/") + ".json"
+    parsed = urlparse(normalized_url)
+
+    path = parsed.path.rstrip("/")
+
+    return f"https://old.reddit.com{path}.json"
+
+
+def fetch_post_and_comments(url: str):
+
+    json_url = build_json_url(url)
 
     response = requests.get(
-        normalized_url,
-        headers=headers,
+        json_url,
+        headers=HEADERS,
         timeout=20
     )
 
     if response.status_code != 200:
 
         raise Exception(
-            f"Failed to fetch Reddit post: {response.status_code}"
+            f"Failed to fetch Reddit JSON: {response.status_code}"
         )
 
     try:
+
         data = response.json()
 
     except Exception:
 
+        print(response.text)
+
         raise Exception(
-            "Reddit returned invalid JSON response"
+            "Reddit returned invalid JSON"
         )
 
     post_data = data[0]["data"]["children"][0]["data"]
